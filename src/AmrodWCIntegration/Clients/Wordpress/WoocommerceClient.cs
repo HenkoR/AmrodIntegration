@@ -18,7 +18,7 @@ using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 using WooCommerceNET.WooCommerce.v3.Extension;
 
-namespace AmrodWCIntegration.Clients
+namespace AmrodWCIntegration.Clients.Wordpress
 {
     public class WoocommerceClient
     {
