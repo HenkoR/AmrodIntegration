@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using AmrodWCIntegration.Clients.Amrod;
 using AmrodWCIntegration.Clients.Wordpress;
 
 using Microsoft.Extensions.Configuration;
@@ -23,11 +24,13 @@ namespace AmrodWCIntegration.Config
         {
             services.Configure<WcOptions>(configuration.GetSection("WC"));
             services.Configure<WpOptions>(configuration.GetSection("WP"));
+            services.Configure<AmrodOptions>(configuration.GetSection("Amrod"));
         }
 
         public static void AddClients(this IServiceCollection services)
         {
             services.AddTransient<WoocommerceClient>();
+            services.AddHttpClient<AmrodClient>();
         }
     }
 }

@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using AmrodWCIntegration.Clients.Amrod;
 using AmrodWCIntegration.Clients.Wordpress;
+using AmrodWCIntegration.Models.Amrod;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -24,17 +26,22 @@ namespace AmrodWCIntegration.Pages
     {
         private readonly ILogger<IndexModel> _logger;
         private readonly WoocommerceClient woocommerce;
+        private readonly AmrodClient amrod;
+        
         public List<ProductCategory> Categories;
-        public IndexModel(ILogger<IndexModel> logger, WoocommerceClient woocommerceClient)
+        public IEnumerable<AmrodCategory> AmrodCategories;
+        
+        public IndexModel(ILogger<IndexModel> logger, WoocommerceClient woocommerceClient, AmrodClient amrodClient)
         {
             _logger = logger;
             woocommerce = woocommerceClient;
+            amrod = amrodClient;
         }
 
         public async Task OnGet()
         {
             Categories = await woocommerce.GetCategories();
-
+            AmrodCategories = await amrod.GetCategoriesAsync();
         }
     }
 }
