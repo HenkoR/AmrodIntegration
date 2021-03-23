@@ -1,1 +1,1 @@
-# AmrodIntegration
+# Amrod Woocommerce Integration
