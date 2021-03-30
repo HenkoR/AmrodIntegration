@@ -27,6 +27,7 @@ namespace AmrodWCIntegration.Config
             services.Configure<WcOptions>(configuration.GetSection("WC"));
             services.Configure<WpOptions>(configuration.GetSection("WP"));
             services.Configure<AmrodOptions>(configuration.GetSection("Amrod"));
+            services.Configure<CronOptions>(configuration.GetSection("Cron"));
         }
 
         public static void AddClients(this IServiceCollection services)
