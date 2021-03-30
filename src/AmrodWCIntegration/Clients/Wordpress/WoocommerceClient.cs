@@ -22,19 +22,26 @@ namespace AmrodWCIntegration.Clients.Wordpress
 {
     public class WoocommerceClient
     {
-        readonly RestAPI restAPI;
+        readonly WordPressRestApi restAPI;
         private readonly WcOptions wcOptions;
 
         public WoocommerceClient(IOptions<WcOptions> optionsAccessor)
         {
             wcOptions = optionsAccessor.Value;
-            restAPI = new RestAPI(wcOptions.ApiUri, wcOptions.ApiKey, wcOptions.ApiSecret);
+            restAPI = new WordPressRestApi(wcOptions.ApiUri, wcOptions.ApiKey, wcOptions.ApiSecret);
+            restAPI.WCAuthWithJWT = true;
         }
 
         public async Task<List<ProductCategory>> GetCategories()
         {
             WCObject wc = new WCObject(restAPI);
             return await wc.Category.GetAll();
+        }
+
+        public async Task<ProductCategory> CreateNewCategory(ProductCategory category)
+        {
+            WCObject wc = new WCObject(restAPI);
+            return await wc.Category.Add(category);
         }
     }
 }

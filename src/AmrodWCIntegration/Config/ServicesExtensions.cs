@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 using AmrodWCIntegration.Clients.Amrod;
 using AmrodWCIntegration.Clients.Wordpress;
+using AmrodWCIntegration.ServiceHosts;
+using AmrodWCIntegration.Services;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +32,14 @@ namespace AmrodWCIntegration.Config
         public static void AddClients(this IServiceCollection services)
         {
             services.AddTransient<WoocommerceClient>();
+            services.AddTransient<WordPressClient>();
             services.AddHttpClient<AmrodClient>();
+        }
+
+        public static void AddServices(this IServiceCollection services)
+        {
+            services.AddTransient<AmrodImportService>();
+            services.AddTransient<WcAmrodSync>();
         }
     }
 }

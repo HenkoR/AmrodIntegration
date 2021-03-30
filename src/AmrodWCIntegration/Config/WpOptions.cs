@@ -17,5 +17,7 @@ namespace AmrodWCIntegration.Config
         public string ApiUri { get; set; }
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
+        public string OAuth_Token { get; set; }
+        public string OAuth_Token_Secret { get; set; }
     }
 }

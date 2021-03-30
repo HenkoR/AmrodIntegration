@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using AmrodWCIntegration.Clients.Amrod;
 using AmrodWCIntegration.Clients.Wordpress;
 using AmrodWCIntegration.Models.Amrod;
+using AmrodWCIntegration.Services;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -27,21 +28,24 @@ namespace AmrodWCIntegration.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly WoocommerceClient woocommerce;
         private readonly AmrodClient amrod;
-        
+        private readonly WcAmrodSync _wcAmrodSync;
+
         public List<ProductCategory> Categories;
         public IEnumerable<AmrodCategory> AmrodCategories;
         
-        public IndexModel(ILogger<IndexModel> logger, WoocommerceClient woocommerceClient, AmrodClient amrodClient)
+        public IndexModel(ILogger<IndexModel> logger, WoocommerceClient woocommerceClient, AmrodClient amrodClient, WcAmrodSync wcAmrodSync)
         {
             _logger = logger;
             woocommerce = woocommerceClient;
             amrod = amrodClient;
+            _wcAmrodSync = wcAmrodSync;
         }
 
         public async Task OnGet()
         {
-            Categories = await woocommerce.GetCategories();
-            AmrodCategories = await amrod.GetCategoriesAsync();
+            await _wcAmrodSync.ImportCategoriesAsync();
+            //Categories = await woocommerce.GetCategories();
+            //AmrodCategories = await amrod.GetCategoriesAsync();
         }
     }
 }
