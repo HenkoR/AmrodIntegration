@@ -14,8 +14,11 @@ namespace AmrodWCIntegration.Config
 {
     public class WcOptions
     {
+        public string BaseUri { get; set; }
         public string ApiUri { get; set; }
         public string ApiKey { get; set; }
         public string ApiSecret { get; set; }
+        public decimal ProfitMargin { get; set; }
+        public bool AddVat { get; set; }
     }
 }

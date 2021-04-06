@@ -37,6 +37,15 @@ namespace AmrodWCIntegration.Clients.Wordpress
             WPObject wp = new WPObject(restAPI);
             var filePath = Path.Combine(_env.ContentRootPath, "wpImage");
 
+            if (Directory.Exists(filePath))
+            {
+                Directory.Delete(filePath, true);
+            }
+            
+            Directory.CreateDirectory(filePath);
+
+            filePath = Path.Combine(_env.ContentRootPath, "wpImage", mediaItem.title);
+
             using var imageClient = new HttpClient();
             using (var file = await imageClient.GetAsync(mediaItem.source_url))
             {

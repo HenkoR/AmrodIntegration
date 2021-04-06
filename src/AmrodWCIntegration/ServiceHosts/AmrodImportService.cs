@@ -24,9 +24,9 @@ namespace AmrodWCIntegration.ServiceHosts
             {
                 while (!ct.IsCancellationRequested)
                 {
-                    //var CategoryImportTask = _wcAmrodSync.ImportCategoriesAsync(ct);
-
-                    //await Task.WhenAll(CategoryImportTask);
+                    var CategoryImportTask = _wcAmrodSync.ImportCategoriesAsync(ct);
+                    var ProductImportTask = _wcAmrodSync.ImportProductsAsync(ct);
+                    await Task.WhenAll(CategoryImportTask, ProductImportTask);
                 }
             }
             finally
