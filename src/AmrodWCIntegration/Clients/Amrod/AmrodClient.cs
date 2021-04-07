@@ -31,8 +31,26 @@ namespace AmrodWCIntegration.Clients.Amrod
 
             Client = client;
         }
+        internal async Task<List<AmrodCategory>> GetAllCategoriesAsync()
+        {
+            var response = await Client.PostAsync("Catalogue/getCategoryTree", null);
 
-        internal async Task<IEnumerable<AmrodCategory>> GetCategoriesAsync()
+            response.EnsureSuccessStatusCode();
+
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+
+            var result = await JsonSerializer.DeserializeAsync<AmrodBaseResponse<AmrodCategoryTreeResponse>>(responseStream);
+
+            var categories = result?.Body?.Categories.ToList();
+            foreach (var cat in result.Body.Categories)
+            {
+                categories.AddRange(cat.SubCategories);
+            }
+
+            return categories;
+        }
+
+        internal async Task<IEnumerable<AmrodCategory>> GetTopLevelCategoriesAsync()
         {
             var response = await Client.PostAsync("Catalogue/getCategoryTree", null);
 

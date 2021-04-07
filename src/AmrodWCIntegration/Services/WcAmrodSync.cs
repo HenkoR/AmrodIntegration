@@ -33,7 +33,7 @@ namespace AmrodWCIntegration.Services
 
         public async Task ImportCategoriesAsync(CancellationToken ct = default)
         {
-            var amrodCategoriesTask = _amrodClient.GetCategoriesAsync();
+            var amrodCategoriesTask = _amrodClient.GetTopLevelCategoriesAsync();
             var wcCategoriesTask = _woocommerceClient.GetCategories();
 
             await Task.WhenAll(amrodCategoriesTask, wcCategoriesTask);
@@ -70,7 +70,7 @@ namespace AmrodWCIntegration.Services
         {
             try
             {
-                var amrodCategoriesTask = _amrodClient.GetCategoriesAsync();
+                var amrodCategoriesTask = _amrodClient.GetTopLevelCategoriesAsync();
                 var wcCategoriesTask = _woocommerceClient.GetCategories();
                 var wcProductAttributesTask = _woocommerceClient.GetProductAttributes();
                 var wcProductsTask = _woocommerceClient.GetProducts();
