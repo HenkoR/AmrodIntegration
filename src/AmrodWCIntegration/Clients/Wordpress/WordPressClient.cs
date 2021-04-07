@@ -59,7 +59,10 @@ namespace AmrodWCIntegration.Clients.Wordpress
                 }
             }
 
-            return await wp.Media.Add(mediaItem.title, filePath);
+            var image = await wp.Media.Add(mediaItem.title, filePath);
+            image.alt_text = image.title;
+            image.description = image.title;
+            return await wp.Media.Update((int)image.id, image);
         }
     }
 }
