@@ -8,15 +8,27 @@
     <h1 class="display-4">Dashboard</h1>
 </div>
 <div>
-    @*@foreach (var category in Model.Categories)
-    {
-        <p>@category.name</p>
-    }*@
-</div>
-
-<div>
-    @*@foreach (var amrodCategory in Model.AmrodCategories)
-    {
-        <p>@amrodCategory.CategoryName</p>
-    }*@
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Products</th>
+                <th scope="col">WooCommerce</th>
+                <th scope="col">WC Products</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var amrodCategory in Model.AmrodCategories)
+            {
+            <tr>
+                <th scope="row">@amrodCategory.CategoryId</th>
+                <td>@amrodCategory.CategoryName</td>
+                <td>@amrodCategory.ProductCount</td>
+                <td>@Model.Categories.Any(x => x.name == amrodCategory.CategoryName)</td>
+                <td>@Model.Categories.First(x => x.name == amrodCategory.CategoryName).count</td>
+            </tr>
+            }
+        </tbody>
+    </table>
 </div>
