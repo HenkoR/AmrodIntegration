@@ -15,7 +15,10 @@
     </PackageReference>
     <PackageReference Include="NCrontab" Version="3.3.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="WooCommerceNET" Version="0.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WooCommerce.NET\WooCommerce.NET.csproj" />
   </ItemGroup>
 
 </Project>
