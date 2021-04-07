@@ -20,5 +20,6 @@ namespace AmrodWCIntegration.Config
         public string ApiSecret { get; set; }
         public decimal ProfitMargin { get; set; }
         public bool AddVat { get; set; }
+        public bool AddRounding { get; set; }
     }
 }

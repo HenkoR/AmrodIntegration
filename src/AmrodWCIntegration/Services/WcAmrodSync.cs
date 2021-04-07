@@ -112,8 +112,8 @@ namespace AmrodWCIntegration.Services
                                     name = arProductDetails.ProductName,
                                     description = System.Web.HttpUtility.HtmlDecode(arProductDetails.ProductDescription),
                                     short_description = System.Web.HttpUtility.HtmlDecode(arProductDetails.ProductDescription),
-                                    price = arProductDetails.Price,
-                                    regular_price = (_wcOptions.AddVat ? arProductDetails.Price * 1.15m : arProductDetails.Price) / (1 - _wcOptions.ProfitMargin),
+                                    price = GetItemPrice(arProductDetails.Price),
+                                    regular_price = GetItemPrice(arProductDetails.Price),
                                     images = new List<ProductImage>()
                                 };
 
@@ -122,10 +122,16 @@ namespace AmrodWCIntegration.Services
                                 {
                                     var newImage = new Media {
                                         title = arImage.ImageUrlXL.Substring(arImage.ImageUrlXL.LastIndexOf('/') + 1), //arImage.Name.Equals("default") ? arProductDetails.ProductCode : arImage.Name,
+                                        alt_text = arImage.ImageUrlXL.Substring(arImage.ImageUrlXL.LastIndexOf('/') + 1),
                                         source_url = arImage.ImageUrlXL,
                                     };
                                     newImage = await _wordPressClient.AddImageMedia(newImage);
-                                    newProduct.images.Add(new ProductImage { src = newImage.source_url });
+                                    newProduct.images.Add(new ProductImage { 
+                                        id = newImage.id,
+                                        name = newImage.title,
+                                        alt = newImage.alt_text,
+                                        src = newImage.source_url 
+                                    });
                                 }
 
                                 var arCategory = arProductDetails.Attributes?.Select(x => x.Attributes.First(att => att.AttributeName == "ALPCategory").AttributeValue);
@@ -213,7 +219,7 @@ namespace AmrodWCIntegration.Services
                                             attributes = att,
                                             stock_quantity = productVariation.InStock,
                                             manage_stock = true,
-                                            regular_price = arProductDetails.VarientPrices?.First(x => x.SizeCode == att.First(x => x.name == "Size").option).Price / (1 - _wcOptions.ProfitMargin)
+                                            regular_price = GetItemPrice(arProductDetails.VarientPrices?.First(x => x.SizeCode == att.First(x => x.name == "Size").option).Price)
                                         };
 
                                         newProductVariation = await _woocommerceClient.CreateNewProductVariation(newProductVariation, newProduct.id.Value);
@@ -230,6 +236,19 @@ namespace AmrodWCIntegration.Services
             {
 
             }
+        }
+
+        decimal GetItemPrice(decimal? cost)
+        {
+            var itemCost = cost ?? 0.00m;
+            if (_wcOptions.AddVat)
+                itemCost *= 1.15m;
+
+            var itemPrice = itemCost / (1 - _wcOptions.ProfitMargin);
+            if (_wcOptions.AddRounding)
+                itemPrice = Math.Ceiling(itemPrice) - 0.05m;
+
+            return itemPrice;
         }
     }
 }
