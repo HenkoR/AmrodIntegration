@@ -32,10 +32,26 @@ namespace AmrodWCIntegration.Clients.Wordpress
             restAPI.WCAuthWithJWT = true;
         }
 
-        public async Task<List<ProductCategory>> GetCategories()
+        public async Task<List<ProductCategory>> GetCategories(string perPage = null, int? page = null, int? offset = null)
         {
+            if (perPage == null)
+                perPage = "100";
+            if (page == null)
+                page = 1;
+            if (offset == null)
+                offset = 0;
+            
+            var categories = new List<ProductCategory>();
             WCObject wc = new WCObject(restAPI);
-            return await wc.Category.GetAll(new Dictionary<string, string>() { { "per_page", "100" } });
+            List<ProductCategory> result = await wc.Category.GetAll(new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            while (result.Count > 0)
+            {
+                page++;
+                categories.AddRange(result);
+                result = await wc.Category.GetAll(new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            }
+
+            return categories;
         }
 
         public async Task<List<Product>> GetProducts()
