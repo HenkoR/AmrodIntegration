@@ -16,17 +16,30 @@
                 <th scope="col">Products</th>
                 <th scope="col">WooCommerce</th>
                 <th scope="col">WC Products</th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var amrodCategory in Model.AmrodCategories)
+            @foreach (var amrodCategory in Model.AmrodCategories.Where(x => x.SubCategories.Count() == 0).OrderBy(x => x.CategoryName))
             {
-            <tr>
+            <tr class="@(
+                    amrodCategory.ProductCount == Model.Categories?.FirstOrDefault(x => x.name == amrodCategory.CategoryName)?.count ? 
+                    "table-success" : 
+                    Model.Categories?.FirstOrDefault(x => x.name == amrodCategory.CategoryName)?.count > amrodCategory.ProductCount ? 
+                    "table-danger" : 
+                    Model.Categories?.FirstOrDefault(x => x.name == amrodCategory.CategoryName)?.count > 0 ? "table-warning" : "")">
+
                 <th scope="row">@amrodCategory.CategoryId</th>
                 <td>@amrodCategory.CategoryName</td>
-                <td>@amrodCategory.ProductCount</td>
+                <td>@(amrodCategory.SubCategories.Count() != 0 ? 0 : amrodCategory.ProductCount)</td>
                 <td>@Model.Categories.Any(x => x.name == amrodCategory.CategoryName)</td>
-                <td>@Model.Categories.First(x => x.name == amrodCategory.CategoryName).count</td>
+                <td>@Model.Categories?.FirstOrDefault(x => x.name == amrodCategory.CategoryName)?.count</td>
+                <td>
+                    @if (amrodCategory.SubCategories.Count() == 0 && Model.Categories.Any(x => x.name == amrodCategory.CategoryName))
+                    {
+                        <a asp-page="./CategoryImport" asp-route-categoryId="@amrodCategory.CategoryId" class="btn btn-outline-primary">Import Products</a>
+                    }
+                </td>
             </tr>
             }
         </tbody>
