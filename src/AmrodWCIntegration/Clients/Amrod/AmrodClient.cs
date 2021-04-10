@@ -31,6 +31,7 @@ namespace AmrodWCIntegration.Clients.Amrod
 
             Client = client;
         }
+        
         internal async Task<List<AmrodCategory>> GetAllCategoriesAsync()
         {
             var response = await Client.PostAsync("Catalogue/getCategoryTree", null);
@@ -60,6 +61,22 @@ namespace AmrodWCIntegration.Clients.Amrod
 
             var result = await JsonSerializer.DeserializeAsync<AmrodBaseResponse<AmrodCategoryTreeResponse>>(responseStream);
             return result?.Body?.Categories;
+        }
+
+        internal async Task<AmrodCategory> GetCategoryAsync(int categoryId)
+        {
+            var requestBody = new StringContent(
+                JsonSerializer.Serialize(new { categoryId = categoryId, IncludeClearanceItems = false }),
+                Encoding.UTF8,
+                "application/json");
+            var response = await Client.PostAsync("Catalogue/getCategoryTree", requestBody);
+
+            response.EnsureSuccessStatusCode();
+
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+
+            var result = await JsonSerializer.DeserializeAsync<AmrodBaseResponse<AmrodCategoryTreeResponse>>(responseStream);
+            return result?.Body?.Categories?.First();
         }
 
         internal async Task<IEnumerable<AmrodProduct>> GetCategoryProducts(int categoryId)
