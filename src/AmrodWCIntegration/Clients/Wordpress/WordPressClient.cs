@@ -64,5 +64,11 @@ namespace AmrodWCIntegration.Clients.Wordpress
             image.description = image.title;
             return await wp.Media.Update((int)image.id, image);
         }
+
+        internal async Task DeleteImageMedia(int mediaItemId)
+        {
+            WPObject wp = new WPObject(restAPI);
+            await wp.Media.Delete(mediaItemId, true);
+        }
     }
 }
