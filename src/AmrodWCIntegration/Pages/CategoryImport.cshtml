@@ -1,0 +1,20 @@
+﻿@page "{categoryId:int}"
+@model AmrodWCIntegration.Pages.CategoryImportModel
+@{
+}
+
+<h1>Import Category - @Model.amrodCategory.CategoryName</h1>
+
+<div class="text-center">
+    <div class="alert alert-info" role="alert">
+        @Model.StatusMessage
+    </div>
+    <div>
+        <ul class="list-group list-group-flush">
+            @foreach (var item in Model.Progress.OrderByDescending(x => x.Key))
+            {
+                <li class="list-group-item">@item.Value</li>
+            }
+        </ul>
+    </div>
+</div>
