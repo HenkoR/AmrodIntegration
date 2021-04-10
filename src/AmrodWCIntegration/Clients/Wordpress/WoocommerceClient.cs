@@ -54,10 +54,33 @@ namespace AmrodWCIntegration.Clients.Wordpress
             return categories;
         }
 
-        public async Task<List<Product>> GetProducts()
+        internal async Task<ProductCategory> GetCategory(string categoryName)
         {
             WCObject wc = new WCObject(restAPI);
-            return await wc.Product.GetAll();
+            var result = await wc.Category.GetAll(new Dictionary<string, string>() { { "per_page", "1" }, { "search", categoryName } });
+            return result.First();
+        }
+
+        public async Task<List<Product>> GetProducts(string perPage = null, int? page = null, int? offset = null)
+        {
+            if (perPage == null)
+                perPage = "100";
+            if (page == null)
+                page = 1;
+            if (offset == null)
+                offset = 0;
+
+            var products = new List<Product>();
+            WCObject wc = new WCObject(restAPI);
+            List<Product> result = await wc.Product.GetAll(new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            while (result.Count > 0)
+            {
+                page++;
+                products.AddRange(result);
+                result = await wc.Product.GetAll(new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            }
+
+            return products;
         }
 
         public async Task<List<ProductAttribute>> GetProductAttributes()
@@ -88,6 +111,12 @@ namespace AmrodWCIntegration.Clients.Wordpress
         {
             WCObject wc = new WCObject(restAPI);
             return await wc.Product.Update((int)product.id.Value, product);
+        }
+
+        public async Task<Product> DeleteProduct(Product product)
+        {
+            WCObject wc = new WCObject(restAPI);
+            return await wc.Product.Delete((int)product.id.Value, true);
         }
 
         public async Task<Variation> CreateNewProductVariation(Variation variation, uint productId)
