@@ -57,8 +57,8 @@ namespace AmrodWCIntegration.Clients.Wordpress
         internal async Task<ProductCategory> GetCategory(string categoryName)
         {
             WCObject wc = new WCObject(restAPI);
-            var result = await wc.Category.GetAll(new Dictionary<string, string>() { { "per_page", "1" }, { "search", categoryName } });
-            return result.First();
+            var result = await wc.Category.GetAll(new Dictionary<string, string>() { { "search", categoryName } });
+            return result.FirstOrDefault(x => x.name == categoryName);
         }
 
         public async Task<List<Product>> GetProducts(string perPage = null, int? page = null, int? offset = null)
