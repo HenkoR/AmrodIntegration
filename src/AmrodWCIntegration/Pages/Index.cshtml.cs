@@ -48,5 +48,12 @@ namespace AmrodWCIntegration.Pages
             //await _wcAmrodSync.ImportCategoriesAsync();
             //await _wcAmrodSync.ImportProductsAsync();
         }
+
+        public async Task OnPostImportCategories()
+        {
+            await _wcAmrodSync.ImportCategoriesAsync();
+            AmrodCategories = await amrod.GetAllCategoriesAsync();
+            Categories = await woocommerce.GetCategories();
+        }
     }
 }
