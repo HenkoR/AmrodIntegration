@@ -36,6 +36,7 @@ namespace AmrodWCIntegration.Clients.Wordpress
         {
             WPObject wp = new WPObject(restAPI);
             var filePath = Path.Combine(_env.ContentRootPath, "wpImage");
+            var fileDownloadSucces = false;
 
             if (Directory.Exists(filePath))
             {
@@ -56,13 +57,17 @@ namespace AmrodWCIntegration.Clients.Wordpress
 
                     using FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
                     stream.Write(s, 0, s.Length);
+                    fileDownloadSucces = true;
                 }
             }
-
-            var image = await wp.Media.Add(mediaItem.title, filePath);
-            image.alt_text = image.title;
-            image.description = image.title;
-            return await wp.Media.Update((int)image.id, image);
+            if (fileDownloadSucces)
+            {
+                var image = await wp.Media.Add(mediaItem.title, filePath);
+                image.alt_text = image.title;
+                image.description = image.title;
+                return await wp.Media.Update((int)image.id, image);
+            }
+            return null;
         }
 
         internal async Task DeleteImageMedia(int mediaItemId)
