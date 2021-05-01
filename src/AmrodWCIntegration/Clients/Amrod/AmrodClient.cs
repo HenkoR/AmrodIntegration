@@ -112,5 +112,22 @@ namespace AmrodWCIntegration.Clients.Amrod
             var result = await JsonSerializer.DeserializeAsync<AmrodBaseResponse<AmrodProductDetail>>(responseStream);
             return result?.Body;
         }
+
+        internal async Task<AmrodStockLevel> GetProductStockLevels(string productCode)
+        {
+            var requestBody = new StringContent(
+               JsonSerializer.Serialize(new { itemCode = productCode }),
+               Encoding.UTF8,
+               "application/json"
+               );
+
+            var response = await Client.PostAsync("Catalogue/getProductStockLevels", requestBody);
+
+            response.EnsureSuccessStatusCode();
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+
+            var result = await JsonSerializer.DeserializeAsync<AmrodBaseResponse<AmrodStockLevel>>(responseStream);
+            return result?.Body;
+        }
     }
 }

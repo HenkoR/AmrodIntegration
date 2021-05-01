@@ -95,6 +95,28 @@ namespace AmrodWCIntegration.Clients.Wordpress
             return await wc.Attribute.Terms.GetAll(attrId, new Dictionary<string, string>() { { "per_page", "50" } });
         }
 
+        public async Task<List<Variation>> GetProductVariations(uint? productId, string perPage = null, int? page = null, int? offset = null)
+        {
+            if (perPage == null)
+                perPage = "100";
+            if (page == null)
+                page = 1;
+            if (offset == null)
+                offset = 0;
+
+            var variations = new List<Variation>();
+            WCObject wc = new WCObject(restAPI);
+            List<Variation> result = await wc.Product.Variations.GetAll(productId, new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            while (result.Count > 0)
+            {
+                page++;
+                variations.AddRange(result);
+                result = await wc.Product.Variations.GetAll(productId, new Dictionary<string, string>() { { "per_page", perPage }, { "page", page.ToString() } });
+            }
+
+            return variations;
+        }
+
         public async Task<ProductCategory> CreateNewCategory(ProductCategory category)
         {
             WCObject wc = new WCObject(restAPI);
@@ -129,6 +151,12 @@ namespace AmrodWCIntegration.Clients.Wordpress
         {
             WCObject wc = new WCObject(restAPI);
             return await wc.Attribute.Terms.Add(attributeTerm, (int)parentId);
+        }
+
+        public async Task<Variation> UpdateProductVariation(Variation variation, uint productId)
+        {
+            WCObject wc = new WCObject(restAPI);
+            return await wc.Product.Variations.Update((int)variation.id, variation, (int)productId);
         }
     }
 }

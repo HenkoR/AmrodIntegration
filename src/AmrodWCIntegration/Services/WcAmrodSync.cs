@@ -576,6 +576,83 @@ namespace AmrodWCIntegration.Services
             }
         }
 
+        public async Task UpdateStockLevels(CancellationToken ct = default)
+        {
+            try
+            {
+                int productsProgress = 1;
+                // Prepare: Fetch WC products
+                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Fetching WC products...");
+                var wcProductsTask = _woocommerceClient.GetProducts();
+
+                await Task.WhenAll(wcProductsTask);
+
+                var wcProducts = await wcProductsTask;
+                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Starting with update ({wcProducts.Count} items)...");
+                foreach (var product in wcProducts)
+                {
+                    ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Fetching AR stock levels ({productsProgress}/{wcProducts.Count})...");
+                    var stockLevels = await _amrodClient.GetProductStockLevels(product.sku);
+
+                    if (stockLevels != null && stockLevels.Levels != null)
+                    {
+                        // Update simple product
+                        if (stockLevels.Levels.Count() == 1)
+                        {
+                            if (product.stock_quantity == stockLevels.Levels.First().InStock)
+                            {
+                                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Skipping product ({productsProgress}/{wcProducts.Count})...");
+                                productsProgress++;
+                                continue;
+                            }
+                            product.stock_quantity = stockLevels.Levels.First().InStock;
+                            ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Updating product stock ({productsProgress}/{wcProducts.Count})...");
+                            await _woocommerceClient.UpdateProduct(product);
+                        }
+                        // Update variations product
+                        else
+                        {
+                            int productVariationsProgress = 1;
+                            ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Fetching WC product variations ({productVariationsProgress}/{stockLevels.Levels.Count()})...");
+                            var productVariations = await _woocommerceClient.GetProductVariations(product.id);
+                            foreach (var stockLevel in stockLevels.Levels)
+                            {
+                                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Checking variation levels ({productVariationsProgress}/{stockLevels.Levels.Count()})...");
+                                var variation = productVariations.FirstOrDefault(x => x.sku == stockLevel.ItemCode);
+
+                                if (variation.stock_quantity == stockLevel.InStock)
+                                {
+                                    ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Skipping variation ({productVariationsProgress}/{stockLevels.Levels.Count()})...");
+                                    productVariationsProgress++;
+                                    continue;
+                                }
+
+                                variation.stock_quantity = stockLevel.InStock;
+                                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: UpdateStockLevels :: Updating variation stock({productVariationsProgress}/{stockLevels.Levels.Count()})...");
+                                await _woocommerceClient.UpdateProductVariation(variation, product.id.Value);
+                                productVariationsProgress++;
+                            }
+
+                        }
+                    }
+                    productsProgress++;
+                }
+                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: done");
+            }
+            catch (Exception ex)
+            {
+                ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: An Error occured: {ex.Message}{ex.InnerException}");
+                try
+                {
+                    
+                }
+                catch (Exception innerEx)
+                {
+                    ProgressTracker.Add(currentRequest, $"{DateTimeOffset.Now} :: An Error occured during rollback: {innerEx.Message}{Environment.NewLine}{innerEx.InnerException}");
+                }
+            }
+        }
+
         async Task<List<int>> AddExistingProductsToNewCateogory(Models.Amrod.AmrodCategory amrodCategory, ProductCategory wcCategory, IEnumerable<Models.Amrod.AmrodProduct> arProducts, List<Product> wcProducts)
         {
             List<int> existingProductIds = new List<int>();
