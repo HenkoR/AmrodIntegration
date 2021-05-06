@@ -27,6 +27,8 @@ namespace AmrodWCIntegration.ServiceHosts
                     //var CategoryImportTask = _wcAmrodSync.ImportCategoriesAsync(ct);
                     //var ProductImportTask = _wcAmrodSync.ImportProductsAsync(ct);
                     //await Task.WhenAll(CategoryImportTask, ProductImportTask);
+                    var UpdateStockLevelsTask = _wcAmrodSync.UpdateStockLevels(ct);
+                    await Task.WhenAll(UpdateStockLevelsTask);
                 }
             }
             finally
